@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">PetfinderApp</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="fragment_animals_list_label">PetFinder</string>
+    <string name="button__get_animals">Get list of animals</string>
+</resources>
