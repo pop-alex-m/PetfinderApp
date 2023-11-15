@@ -43,6 +43,11 @@ class MainFragment : Fragment() {
         }
     }
 
+    override fun onStart() {
+        viewModel.refreshAuthorization()
+        super.onStart()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

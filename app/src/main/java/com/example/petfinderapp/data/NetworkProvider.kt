@@ -6,25 +6,24 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
-interface NetworkService {
+interface NetworkProvider {
 
     fun getRetrofit(): Retrofit
 
 }
 
-open class NetworkServiceImplementation : NetworkService, KoinComponent {
+open class NetworkProviderImplementation : NetworkProvider, KoinComponent {
+
+    private val tokenManager: TokenManager by inject()
 
     companion object {
         private const val BASE_URL = "https://api.petfinder.com"
-        const val AUTHORIZATION_API_KEY = "D5foHuINtQ6yRvPiupTvSuPqvcFuXEEBYENo3yhHeVwyyY9tc4"
-        const val AUTHORIZATION_SECRET = "oiGMBsDZNDOLnCpFqCunQYwZ8xKqCgxzfB1mQryF"
-
-        const val HEADER_AUTHORIZATION_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJENWZvSHVJTnRRNnlSdlBpdXBUdlN1UHF2Y0Z1WEVFQllFTm8zeWhIZVZ3eXlZOXRjNCIsImp0aSI6ImNmZmM2MzQ3YjJhMmQ2ZTA3ZGU0ZDljNzczMzdkNTlhOWU4OTAxY2FhOWM1YTJjOGJkODkyMjVmYjMyODAwNDdjOWQ3ZGNhN2Y3ZTZkMjNiIiwiaWF0IjoxNjk5OTkyNDU5LCJuYmYiOjE2OTk5OTI0NTksImV4cCI6MTY5OTk5NjA1OSwic3ViIjoiIiwic2NvcGVzIjpbXX0.RY380vOCgxksKI8Ru8Hr0kxMFfhHsnm70IZKUtBt125TnGQKhLi3NpKQphVpadeFmAQySgGrmPPEi1lGk7lPtIh9z49i-JjdPw5K5efm0869NIHv2t6QJQnsr5aUg5NYkd_gHq0Y2IMkAqB5jUuIRsZjCsadBL7fKWoBnvzNgWXW-Bu1hpuinP94ZnZ1eWnCvUD-iQs2Ru27Bo8RFbSIuPFc5MX8bf9IkHejFkH_BYrbWItFtvPAGozH8PlvOfb4_srJ90ebxth1NYeKR4Warib0psk20xFlo5KlCBv8I1g_UMHQOrp1rh2w9oc3kbqllD5T9-xa1_v1lXCovTAJhw"
     }
 
     override fun getRetrofit(): Retrofit {
@@ -71,8 +70,7 @@ open class NetworkServiceImplementation : NetworkService, KoinComponent {
 
     private fun buildAuthorisationHeaders(original: Request): Request {
         return original.newBuilder().apply {
-            addHeader("Authorization", "Bearer $HEADER_AUTHORIZATION_TOKEN")
-           // addHeader(HEADER_AUTHORIZATION_KEY, HEADER_AUTHORIZATION_SECRET)
+            addHeader("Authorization", "Bearer ${tokenManager.getToken()}")
         }.build()
     }
 }

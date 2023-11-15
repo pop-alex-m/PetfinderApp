@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.petfinderapp.data.repositories.AnimalsRepositoryImplementation
+import com.example.petfinderapp.data.repositories.AuthorizationRepositoryImplementation
 import com.example.petfinderapp.domain.models.AnimalDetails
 import com.example.petfinderapp.domain.models.NetworkError
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -22,6 +23,8 @@ class MainViewModel : ViewModel(), KoinComponent {
     }
 
     private val animalsRepository : AnimalsRepositoryImplementation by inject()
+    private val authorizationRepository : AuthorizationRepositoryImplementation by inject()
+
     private val compositeDisposable = CompositeDisposable()
 
     private val _animalsList = MutableStateFlow(emptyList<AnimalDetails>())
@@ -29,6 +32,15 @@ class MainViewModel : ViewModel(), KoinComponent {
 
     private val _networkError = MutableSharedFlow<NetworkError>()
     val networkError: SharedFlow<NetworkError?> = _networkError
+
+    fun refreshAuthorization(){
+        val disposable = authorizationRepository.refreshAccessToken().subscribe ({
+             getListOfPets()
+        } , { exception ->
+            Log.e(TAG, "Error on authorization " + exception.message)
+        } )
+        compositeDisposable.add(disposable)
+    }
 
     fun getListOfPets(): String? {
         val type = "dog"
