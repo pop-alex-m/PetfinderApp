@@ -4,7 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemSelectedListener
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
+import com.example.petfinderapp.R
 import com.example.petfinderapp.databinding.FragmentAnimalsListBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -27,16 +31,34 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.animalsRecyclerView.adapter = animalDetailsAdapter
-        binding.buttonGetAnimals.setOnClickListener {
-            viewModel.getListOfPets()
+        val animaTypesAdapter = ArrayAdapter.createFromResource(
+            requireContext(), R.array.pet_types, android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        }
+        with(binding) {
+            recyclerViewAnimals.adapter = animalDetailsAdapter
+            selectorAnimalType.adapter = animaTypesAdapter
+            selectorAnimalType.onItemSelectedListener = object : OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?, view: View?, position: Int, id: Long
+                ) {
+                    val selectedPetType =
+                        if (position == 0) SelectedPetType.DOG else SelectedPetType.CAT
+                    viewModel.onRetrieveListOfPets(selectedPetType)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+            }
         }
 
         stateFlowCollect(viewModel.animalsList) {
             animalDetailsAdapter.updateAnimalsList(it)
         }
 
-        sharedFlowCollect(viewModel.networkError) { networkError ->
+        sharedFlowCollect(viewModel.errorMessage) { networkError ->
             networkError?.let {
                 showToast(it.errorMessage)
             }

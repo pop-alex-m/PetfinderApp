@@ -11,25 +11,26 @@
         android:layout_height="match_parent"
         android:padding="16dp">
 
-        <Button
-            android:id="@+id/buttonGetAnimals"
-            android:layout_width="wrap_content"
+        <Spinner
+            android:id="@+id/selectorAnimalType"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/button__get_animals"
-            app:layout_constraintBottom_toTopOf="@id/buttonGetAnimals"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toTopOf="@id/recyclerViewAnimals"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/animalsRecyclerView"
+            android:id="@+id/recyclerViewAnimals"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/buttonGetAnimals" />
+            app:layout_constraintTop_toBottomOf="@id/selectorAnimalType" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
