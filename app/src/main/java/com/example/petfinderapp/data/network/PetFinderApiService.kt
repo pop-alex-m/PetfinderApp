@@ -1,4 +1,4 @@
-package com.example.petfinderapp.data
+package com.example.petfinderapp.data.network
 
 import com.example.petfinderapp.data.models.AuthorizationResponse
 import com.example.petfinderapp.data.models.PetResponse

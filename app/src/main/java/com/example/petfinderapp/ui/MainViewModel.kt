@@ -4,7 +4,6 @@ import android.util.Log
 import com.example.petfinderapp.data.repositories.AnimalsRepositoryImplementation
 import com.example.petfinderapp.data.repositories.AuthorizationRepositoryImplementation
 import com.example.petfinderapp.domain.models.AnimalDetails
-import com.example.petfinderapp.domain.models.NetworkError
 import com.example.petfinderapp.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +18,7 @@ class MainViewModel : BaseViewModel(), KoinComponent {
 
     private val animalsRepository: AnimalsRepositoryImplementation by inject()
     private val authorizationRepository: AuthorizationRepositoryImplementation by inject()
-    
+
     private val _animalsList = MutableStateFlow(emptyList<AnimalDetails>())
     val animalsList: StateFlow<List<AnimalDetails>> = _animalsList
 
@@ -38,8 +37,7 @@ class MainViewModel : BaseViewModel(), KoinComponent {
             .subscribe({ animalDetailsList ->
                 _animalsList.value = animalDetailsList
             }, { exception ->
-                Log.e(TAG, "Error " + exception.message)
-                onNetworkError(NetworkError.AUTHENTICATION_ERROR)
+                onError(exception)
             })
         compositeDisposable.add(disposable)
         return null

@@ -1,4 +1,4 @@
-package com.example.petfinderapp.ui
+package com.example.petfinderapp.ui.base
 
 import android.widget.Toast
 import androidx.fragment.app.Fragment

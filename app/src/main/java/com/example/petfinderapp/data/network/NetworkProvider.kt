@@ -1,5 +1,6 @@
-package com.example.petfinderapp.data
+package com.example.petfinderapp.data.network
 
+import com.example.petfinderapp.data.TokenManager
 import com.google.gson.GsonBuilder
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient

@@ -1,8 +1,8 @@
 package com.example.petfinderapp.data.repositories
 
-import com.example.petfinderapp.data.PetFinderApiService
 import com.example.petfinderapp.data.TokenManager
 import com.example.petfinderapp.data.models.AuthorizationResponse
+import com.example.petfinderapp.data.network.PetFinderApiService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers

@@ -1,8 +1,8 @@
 package com.example.petfinderapp.app
 
-import com.example.petfinderapp.data.NetworkProviderImplementation
-import com.example.petfinderapp.data.PetFinderApiService
 import com.example.petfinderapp.data.TokenManager
+import com.example.petfinderapp.data.network.NetworkProviderImplementation
+import com.example.petfinderapp.data.network.PetFinderApiService
 import com.example.petfinderapp.data.repositories.AnimalsRepositoryImplementation
 import com.example.petfinderapp.data.repositories.AuthorizationRepositoryImplementation
 import com.example.petfinderapp.ui.MainViewModel

@@ -10,6 +10,9 @@ import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import com.example.petfinderapp.R
 import com.example.petfinderapp.databinding.FragmentAnimalsListBinding
+import com.example.petfinderapp.ui.base.sharedFlowCollect
+import com.example.petfinderapp.ui.base.showToast
+import com.example.petfinderapp.ui.base.stateFlowCollect
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainFragment : Fragment() {
@@ -60,13 +63,13 @@ class MainFragment : Fragment() {
 
         sharedFlowCollect(viewModel.errorMessage) { networkError ->
             networkError?.let {
-                showToast(it.errorMessage)
+                showToast(it)
             }
         }
     }
 
     override fun onStart() {
-        viewModel.refreshAuthorization()
+        // viewModel.refreshAuthorization()
         super.onStart()
     }
 

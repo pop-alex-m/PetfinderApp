@@ -1,14 +1,20 @@
 package com.example.petfinderapp.data.repositories
 
-import com.example.petfinderapp.data.PetFinderApiService
 import com.example.petfinderapp.data.models.Breed
 import com.example.petfinderapp.data.models.PetResponse
+import com.example.petfinderapp.data.network.PetFinderApiService
 import com.example.petfinderapp.domain.models.AnimalDetails
+import com.example.petfinderapp.domain.models.AuthorizationException
+import com.example.petfinderapp.domain.models.GenericNetworkException
+import com.example.petfinderapp.domain.models.InternalServerError
+import com.example.petfinderapp.domain.models.NoConnectivityException
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import retrofit2.HttpException
+import java.net.UnknownHostException
 
 interface AnimalsRepository {
 
@@ -31,7 +37,35 @@ class AnimalsRepositoryImplementation : AnimalsRepository, KoinComponent {
             val animalDetailsList = mapResponse(petResponse)
             return@flatMap Single.just(animalDetailsList)
         }.onErrorResumeNext {
-            return@onErrorResumeNext Single.error(it)
+            return@onErrorResumeNext when (it) {
+                is UnknownHostException -> {
+                    // No connectivity error
+                    Single.error(NoConnectivityException())
+                }
+
+                is HttpException -> {
+                    when {
+                        it.code() == 401 -> {
+                            // Unauthorized
+                            Single.error(AuthorizationException())
+                        }
+
+                        it.code() == 500 || it.code() == 501 -> {
+                            // Internal server error
+                            Single.error(InternalServerError())
+                        }
+
+                        else -> {
+                            // Other server error codes
+                            Single.error(GenericNetworkException())
+                        }
+                    }
+                }
+
+                else -> {
+                    Single.error(it)
+                }
+            }
         }.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
     }
 
