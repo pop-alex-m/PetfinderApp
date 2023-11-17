@@ -1,7 +1,6 @@
 package com.example.petfinderapp
 
 import com.example.petfinderapp.data.repositories.AnimalsRepositoryImplementation
-import com.example.petfinderapp.data.repositories.AuthorizationRepositoryImplementation
 import com.example.petfinderapp.domain.models.AnimalDetails
 import com.example.petfinderapp.domain.models.AuthorizationException
 import com.example.petfinderapp.domain.models.GenericNetworkException
@@ -9,6 +8,13 @@ import com.example.petfinderapp.domain.models.InternalServerError
 import com.example.petfinderapp.domain.models.NoConnectivityException
 import com.example.petfinderapp.ui.MainViewModel
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -32,17 +38,28 @@ class MainViewModelUnitTest : KoinTest {
     }
 
     @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+    val mainDispatcherRule = CoroutineDispatcherRule()
 
     @get:Rule
     val koinTestRule = KoinTestRule.create {
         modules(
             module {
-                single { AnimalsRepositoryImplementation() }
-                single { AuthorizationRepositoryImplementation() }
                 viewModel { MainViewModel() }
             }
         )
+    }
+
+    private lateinit var testScope: TestScope
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Before
+    fun setup() {
+        testScope = TestScope(UnconfinedTestDispatcher())
+    }
+
+    @After
+    fun tearDown() {
+        testScope.cancel()
     }
 
     @Test
@@ -70,7 +87,7 @@ class MainViewModelUnitTest : KoinTest {
         )
 
         declareMock<AnimalsRepositoryImplementation> {
-            given(this.getAnimals("dog", 1)).willReturn(Single.just(animalsResponse))
+            given(getAnimals("dog", 1)).willReturn(Single.just(animalsResponse))
         }
 
         with(mainViewModel) {
@@ -91,51 +108,85 @@ class MainViewModelUnitTest : KoinTest {
     @Test
     fun testGetAnimalsResponse_error_no_connectivity() {
         declareMock<AnimalsRepositoryImplementation> {
-            given(this.getAnimals("dog", 1)).willReturn(Single.error(NoConnectivityException()))
+            given(getAnimals("dog", 1)).willReturn(Single.error(NoConnectivityException()))
         }
+
+        var errorMessage = ""
+        testScope.launch {
+            mainViewModel.errorMessage.collect {
+                errorMessage = it
+                cancel()
+            }
+        }
+
         with(mainViewModel) {
             onRetrieveListOfPets()
-            assertEquals(animalsList.value.size, 0)
-            assertEquals(
-                errorMessage.value,
-                "Could not connect to the internet, please try again later"
-            )
+            assertEquals(0, animalsList.value.size)
         }
+        assertEquals("Could not connect to the internet, please try again later", errorMessage)
     }
 
     @Test
     fun testGetAnimalsResponse_error_authorization() {
         declareMock<AnimalsRepositoryImplementation> {
-            given(this.getAnimals("dog", 1)).willReturn(Single.error(AuthorizationException()))
+            given(getAnimals("dog", 1)).willReturn(Single.error(AuthorizationException()))
         }
+
+        var errorMessage = ""
+        testScope.launch {
+            mainViewModel.errorMessage.collect {
+                errorMessage = it
+                cancel()
+            }
+        }
+
         with(mainViewModel) {
             onRetrieveListOfPets()
-            assertEquals(animalsList.value.size, 0)
-            assertEquals(errorMessage.value, "Authentication failed")
+            assertEquals(0, animalsList.value.size)
         }
+        assertEquals(errorMessage, "Authentication failed")
     }
 
     @Test
     fun testGetAnimalsResponse_error_generic_network_error() {
         declareMock<AnimalsRepositoryImplementation> {
-            given(this.getAnimals("dog", 1)).willReturn(Single.error(GenericNetworkException()))
+            given(getAnimals("dog", 1)).willReturn(Single.error(GenericNetworkException()))
         }
+
+        var errorMessage = ""
+        testScope.launch {
+            mainViewModel.errorMessage.collect {
+                errorMessage = it
+                cancel()
+            }
+        }
+
         with(mainViewModel) {
             onRetrieveListOfPets()
-            assertEquals(animalsList.value.size, 0)
-            assertEquals(errorMessage.value, "Oops, something went wrong")
+            assertEquals(0, animalsList.value.size)
         }
+        assertEquals("Oops, something went wrong", errorMessage)
     }
 
     @Test
     fun testGetAnimalsResponse_error_internal_server_error() {
         declareMock<AnimalsRepositoryImplementation> {
-            given(this.getAnimals("dog", 1)).willReturn(Single.error(InternalServerError()))
+            given(getAnimals("dog", 1)).willReturn(Single.error(InternalServerError()))
         }
+
+        var errorMessage = ""
+        testScope.launch {
+            mainViewModel.errorMessage.collect {
+                errorMessage = it
+                cancel()
+            }
+        }
+
         with(mainViewModel) {
             onRetrieveListOfPets()
-            assertEquals(animalsList.value.size, 0)
-            assertEquals(errorMessage.value, "We are experiencing an server issue")
+            assertEquals(0, animalsList.value.size)
         }
+
+        assertEquals("We are experiencing an server issue", errorMessage)
     }
 }

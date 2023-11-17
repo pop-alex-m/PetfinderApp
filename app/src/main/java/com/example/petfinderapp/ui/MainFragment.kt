@@ -38,8 +38,8 @@ class MainFragment : Fragment() {
             requireContext(), R.array.pet_types, android.R.layout.simple_spinner_item
         ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
         }
+
         with(binding) {
             recyclerViewAnimals.adapter = animalDetailsAdapter
             selectorAnimalType.adapter = animaTypesAdapter
@@ -52,8 +52,7 @@ class MainFragment : Fragment() {
                     viewModel.onRetrieveListOfPets(selectedPetType)
                 }
 
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-                }
+                override fun onNothingSelected(parent: AdapterView<*>?) = Unit
             }
         }
 
@@ -62,14 +61,12 @@ class MainFragment : Fragment() {
         }
 
         sharedFlowCollect(viewModel.errorMessage) { networkError ->
-            networkError?.let {
-                showToast(it)
-            }
+            showToast(networkError)
         }
     }
 
     override fun onStart() {
-        // viewModel.refreshAuthorization()
+        viewModel.onStart()
         super.onStart()
     }
 

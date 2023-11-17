@@ -1,6 +1,6 @@
 package com.example.petfinderapp.app
 
-import com.example.petfinderapp.data.TokenManager
+import com.example.petfinderapp.data.TokenManagerImpl
 import com.example.petfinderapp.data.network.NetworkProviderImplementation
 import com.example.petfinderapp.data.network.PetFinderApiService
 import com.example.petfinderapp.data.repositories.AnimalsRepositoryImplementation
@@ -12,7 +12,7 @@ import org.koin.dsl.module
 
 val NetworkModule = module {
 
-    single { TokenManager(androidApplication()) }
+    single { TokenManagerImpl(androidApplication()) }
 
     single { NetworkProviderImplementation }
 

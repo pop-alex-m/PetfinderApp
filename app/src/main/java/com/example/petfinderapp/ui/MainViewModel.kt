@@ -1,6 +1,5 @@
 package com.example.petfinderapp.ui
 
-import android.util.Log
 import com.example.petfinderapp.data.repositories.AnimalsRepositoryImplementation
 import com.example.petfinderapp.data.repositories.AuthorizationRepositoryImplementation
 import com.example.petfinderapp.domain.models.AnimalDetails
@@ -22,16 +21,20 @@ class MainViewModel : BaseViewModel(), KoinComponent {
     private val _animalsList = MutableStateFlow(emptyList<AnimalDetails>())
     val animalsList: StateFlow<List<AnimalDetails>> = _animalsList
 
-    fun refreshAuthorization(){
-        val disposable = authorizationRepository.refreshAccessToken().subscribe ({
+    fun onStart() {
+        if (!authorizationRepository.isAccessTokenValid()) {
+            val disposable = authorizationRepository.refreshAccessToken().subscribe({
+                onRetrieveListOfPets()
+            }, { exception ->
+                onError(exception)
+            })
+            compositeDisposable.add(disposable)
+        } else {
             onRetrieveListOfPets()
-        } , { exception ->
-            Log.e(TAG, "Error on authorization " + exception.message)
-        } )
-        compositeDisposable.add(disposable)
+        }
     }
 
-    fun onRetrieveListOfPets(petType: SelectedPetType = SelectedPetType.DOG): String? {
+    fun onRetrieveListOfPets(petType: SelectedPetType = SelectedPetType.DOG) {
         val page = 1
         val disposable = animalsRepository.getAnimals(petType.name.lowercase(), page)
             .subscribe({ animalDetailsList ->
@@ -40,6 +43,5 @@ class MainViewModel : BaseViewModel(), KoinComponent {
                 onError(exception)
             })
         compositeDisposable.add(disposable)
-        return null
     }
 }

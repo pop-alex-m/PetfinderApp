@@ -1,6 +1,6 @@
 package com.example.petfinderapp.data.network
 
-import com.example.petfinderapp.data.TokenManager
+import com.example.petfinderapp.data.TokenManagerImpl
 import com.google.gson.GsonBuilder
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -21,7 +21,7 @@ interface NetworkProvider {
 
 open class NetworkProviderImplementation : NetworkProvider, KoinComponent {
 
-    private val tokenManager: TokenManager by inject()
+    private val tokenManager: TokenManagerImpl by inject()
 
     companion object {
         private const val BASE_URL = "https://api.petfinder.com"

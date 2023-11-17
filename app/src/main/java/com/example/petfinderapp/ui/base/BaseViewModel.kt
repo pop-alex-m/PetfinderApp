@@ -17,7 +17,7 @@ open class BaseViewModel : ViewModel(), KoinComponent {
     val compositeDisposable = CompositeDisposable()
 
     private val _errorMessage = MutableSharedFlow<String>()
-    val errorMessage: SharedFlow<String?> = _errorMessage
+    val errorMessage: SharedFlow<String> = _errorMessage
 
     protected fun onError(error: Throwable) {
         viewModelScope.launch {
