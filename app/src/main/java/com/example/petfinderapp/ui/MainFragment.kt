@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.example.petfinderapp.R
 import com.example.petfinderapp.databinding.FragmentAnimalsListBinding
@@ -33,7 +34,11 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupViews()
+        setupObservers()
+    }
 
+    private fun setupViews() {
         val animaTypesAdapter = ArrayAdapter.createFromResource(
             requireContext(), R.array.pet_types, android.R.layout.simple_spinner_item
         ).also { adapter ->
@@ -49,25 +54,27 @@ class MainFragment : Fragment() {
                 ) {
                     val selectedPetType =
                         if (position == 0) SelectedPetType.DOG else SelectedPetType.CAT
-                    viewModel.onRetrieveListOfPets(selectedPetType)
+
+                    animalDetailsAdapter.clearAnimalsList()
+                    loadingIndicator.isVisible = true
+                    viewModel.checkTokenAndGetListOfAnimals(selectedPetType)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) = Unit
             }
         }
+    }
 
+    private fun setupObservers() {
         stateFlowCollect(viewModel.animalsList) {
+            binding.loadingIndicator.isVisible = false
             animalDetailsAdapter.updateAnimalsList(it)
         }
 
         sharedFlowCollect(viewModel.errorMessage) { networkError ->
+            binding.loadingIndicator.isVisible = false
             showToast(networkError)
         }
-    }
-
-    override fun onStart() {
-        viewModel.onStart()
-        super.onStart()
     }
 
     override fun onDestroyView() {

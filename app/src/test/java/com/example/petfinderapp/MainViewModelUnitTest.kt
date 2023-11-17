@@ -7,6 +7,7 @@ import com.example.petfinderapp.domain.models.GenericNetworkException
 import com.example.petfinderapp.domain.models.InternalServerError
 import com.example.petfinderapp.domain.models.NoConnectivityException
 import com.example.petfinderapp.ui.MainViewModel
+import com.example.petfinderapp.ui.SelectedPetType
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -91,7 +92,7 @@ class MainViewModelUnitTest : KoinTest {
         }
 
         with(mainViewModel) {
-            onRetrieveListOfPets()
+            onRetrieveListOfPets(SelectedPetType.DOG)
             assertEquals(animalsList.value.size, 2)
         }
 
@@ -120,7 +121,7 @@ class MainViewModelUnitTest : KoinTest {
         }
 
         with(mainViewModel) {
-            onRetrieveListOfPets()
+            onRetrieveListOfPets(SelectedPetType.DOG)
             assertEquals(0, animalsList.value.size)
         }
         assertEquals("Could not connect to the internet, please try again later", errorMessage)
@@ -141,7 +142,7 @@ class MainViewModelUnitTest : KoinTest {
         }
 
         with(mainViewModel) {
-            onRetrieveListOfPets()
+            onRetrieveListOfPets(SelectedPetType.DOG)
             assertEquals(0, animalsList.value.size)
         }
         assertEquals(errorMessage, "Authentication failed")
@@ -162,7 +163,7 @@ class MainViewModelUnitTest : KoinTest {
         }
 
         with(mainViewModel) {
-            onRetrieveListOfPets()
+            onRetrieveListOfPets(SelectedPetType.DOG)
             assertEquals(0, animalsList.value.size)
         }
         assertEquals("Oops, something went wrong", errorMessage)
@@ -183,7 +184,7 @@ class MainViewModelUnitTest : KoinTest {
         }
 
         with(mainViewModel) {
-            onRetrieveListOfPets()
+            onRetrieveListOfPets(SelectedPetType.DOG)
             assertEquals(0, animalsList.value.size)
         }
 

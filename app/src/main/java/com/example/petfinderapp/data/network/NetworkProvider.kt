@@ -50,7 +50,7 @@ open class NetworkProviderImplementation : NetworkProvider, KoinComponent {
         }
     }
 
-    protected open fun configureRetrofit(builder: Retrofit.Builder) {
+    private fun configureRetrofit(builder: Retrofit.Builder) {
         with(builder) {
             addCallAdapterFactory(RxJava3CallAdapterFactory.create())
             addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))

@@ -21,22 +21,21 @@ class MainViewModel : BaseViewModel(), KoinComponent {
     private val _animalsList = MutableStateFlow(emptyList<AnimalDetails>())
     val animalsList: StateFlow<List<AnimalDetails>> = _animalsList
 
-    fun onStart() {
+    fun checkTokenAndGetListOfAnimals(petType: SelectedPetType = SelectedPetType.DOG) {
         if (!authorizationRepository.isAccessTokenValid()) {
             val disposable = authorizationRepository.refreshAccessToken().subscribe({
-                onRetrieveListOfPets()
+                onRetrieveListOfPets(petType)
             }, { exception ->
                 onError(exception)
             })
             compositeDisposable.add(disposable)
         } else {
-            onRetrieveListOfPets()
+            onRetrieveListOfPets(petType)
         }
     }
 
-    fun onRetrieveListOfPets(petType: SelectedPetType = SelectedPetType.DOG) {
-        val page = 1
-        val disposable = animalsRepository.getAnimals(petType.name.lowercase(), page)
+    fun onRetrieveListOfPets(petType: SelectedPetType) {
+        val disposable = animalsRepository.getAnimals(petType.name.lowercase(), 1)
             .subscribe({ animalDetailsList ->
                 _animalsList.value = animalDetailsList
             }, { exception ->
