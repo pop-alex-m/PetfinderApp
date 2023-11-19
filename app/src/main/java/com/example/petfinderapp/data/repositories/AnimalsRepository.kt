@@ -11,8 +11,6 @@ import com.example.petfinderapp.domain.models.NoConnectivityException
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import retrofit2.HttpException
 import java.net.UnknownHostException
 
@@ -21,9 +19,8 @@ interface AnimalsRepository {
     fun getAnimals(type: String, page: Int): Single<List<AnimalDetails>>
 }
 
-class AnimalsRepositoryImplementation : AnimalsRepository, KoinComponent {
-
-    private val apiService: PetFinderApiService by inject()
+class AnimalsRepositoryImplementation(private val apiService: PetFinderApiService) :
+    AnimalsRepository {
 
     companion object {
         private const val TAG = "AnimalsRepositoryImplementation"

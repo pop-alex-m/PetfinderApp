@@ -6,8 +6,6 @@ import com.example.petfinderapp.data.network.PetFinderApiService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 interface AuthorizationRepository {
     fun refreshAccessToken(): Single<AuthorizationResponse>
@@ -16,10 +14,10 @@ interface AuthorizationRepository {
 
 }
 
-class AuthorizationRepositoryImplementation : AuthorizationRepository, KoinComponent {
-
-    private val apiService: PetFinderApiService by inject()
-    private val tokenManager: TokenManagerImpl by inject()
+class AuthorizationRepositoryImplementation(
+    private val apiService: PetFinderApiService,
+    private val tokenManager: TokenManagerImpl
+) : AuthorizationRepository {
 
     companion object {
         const val grantType = "client_credentials"
@@ -41,9 +39,6 @@ class AuthorizationRepositoryImplementation : AuthorizationRepository, KoinCompo
     }
 
     override fun isAccessTokenValid(): Boolean {
-        val accessToken = tokenManager.getToken()
-        val timeStamp = tokenManager.getTokenTimeStamp()
-        val expiresIn = tokenManager.getTokenExpiresIn()
-        return accessToken.isNotEmpty() && ((timeStamp + expiresIn) > System.currentTimeMillis())
+        return tokenManager.isTokenValid()
     }
 }

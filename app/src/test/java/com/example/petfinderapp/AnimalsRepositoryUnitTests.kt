@@ -29,6 +29,7 @@ import retrofit2.HttpException
 import retrofit2.Response
 import java.net.UnknownHostException
 
+
 class AnimalsRepositoryUnitTests : KoinTest {
 
     private val animalsRepository by inject<AnimalsRepositoryImplementation>()
@@ -45,7 +46,8 @@ class AnimalsRepositoryUnitTests : KoinTest {
     val koinTestRule = KoinTestRule.create {
         modules(
             module {
-                single { AnimalsRepositoryImplementation() }
+                single { Mockito.mock(PetFinderApiService::class.java) }
+                single { AnimalsRepositoryImplementation(get()) }
             }
         )
     }
@@ -90,7 +92,6 @@ class AnimalsRepositoryUnitTests : KoinTest {
                 distance = "245km"
             )
         )
-
         testObserver.assertValue(animalsDetailsList)
     }
 

@@ -6,8 +6,6 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -19,9 +17,8 @@ interface NetworkProvider {
 
 }
 
-open class NetworkProviderImplementation : NetworkProvider, KoinComponent {
-
-    private val tokenManager: TokenManagerImpl by inject()
+open class NetworkProviderImplementation(private val tokenManager: TokenManagerImpl) :
+    NetworkProvider {
 
     companion object {
         private const val BASE_URL = "https://api.petfinder.com"

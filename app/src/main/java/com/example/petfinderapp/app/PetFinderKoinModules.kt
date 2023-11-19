@@ -14,20 +14,23 @@ val NetworkModule = module {
 
     single { TokenManagerImpl(androidApplication()) }
 
-    single { NetworkProviderImplementation }
+    single { NetworkProviderImplementation(get()) }
 
-    single { NetworkProviderImplementation().getRetrofit().create(PetFinderApiService::class.java) }
+    single {
+        (get() as NetworkProviderImplementation).getRetrofit()
+            .create(PetFinderApiService::class.java)
+    }
 
 }
 
 val ViewModelModule = module {
 
-    viewModel { MainViewModel() }
+    viewModel { MainViewModel(get(), get()) }
 }
 
 val RepositoryModule = module {
 
-    single { AnimalsRepositoryImplementation() }
+    single { AnimalsRepositoryImplementation((get())) }
 
-    single { AuthorizationRepositoryImplementation() }
+    single { AuthorizationRepositoryImplementation(get(), get()) }
 }

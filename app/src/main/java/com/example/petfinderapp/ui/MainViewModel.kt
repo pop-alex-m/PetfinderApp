@@ -6,17 +6,15 @@ import com.example.petfinderapp.domain.models.AnimalDetails
 import com.example.petfinderapp.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class MainViewModel : BaseViewModel(), KoinComponent {
+class MainViewModel(
+    private val animalsRepository: AnimalsRepositoryImplementation,
+    private val authorizationRepository: AuthorizationRepositoryImplementation
+) : BaseViewModel() {
 
     companion object {
         private const val TAG = "MainViewModel"
     }
-
-    private val animalsRepository: AnimalsRepositoryImplementation by inject()
-    private val authorizationRepository: AuthorizationRepositoryImplementation by inject()
 
     private val _animalsList = MutableStateFlow(emptyList<AnimalDetails>())
     val animalsList: StateFlow<List<AnimalDetails>> = _animalsList
@@ -34,7 +32,7 @@ class MainViewModel : BaseViewModel(), KoinComponent {
         }
     }
 
-    fun onRetrieveListOfPets(petType: SelectedPetType) {
+    private fun onRetrieveListOfPets(petType: SelectedPetType) {
         val disposable = animalsRepository.getAnimals(petType.name.lowercase(), 1)
             .subscribe({ animalDetailsList ->
                 _animalsList.value = animalDetailsList

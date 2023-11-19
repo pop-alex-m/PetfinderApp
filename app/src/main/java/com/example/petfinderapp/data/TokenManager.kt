@@ -2,16 +2,14 @@ package com.example.petfinderapp.data
 
 import android.content.Context
 
-interface TokeManager {
+interface TokenManager {
     fun saveToken(token: String, expiresIn: String)
 
     fun getToken(): String
-
-    fun getTokenTimeStamp(): Long
-    fun getTokenExpiresIn(): Long
+    fun isTokenValid(): Boolean
 }
 
-class TokenManagerImpl(private val context: Context) : TokeManager {
+class TokenManagerImpl(private val context: Context) : TokenManager {
     companion object {
         const val prefsFileName = "PetFinderPreferences"
         const val accessToken = "accessToken"
@@ -33,14 +31,21 @@ class TokenManagerImpl(private val context: Context) : TokeManager {
             .getString(accessToken, "") ?: ""
     }
 
-    override fun getTokenTimeStamp(): Long {
+    private fun getTokenTimeStamp(): Long {
         return context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE)
             .getLong(accessTokenTimestampMs, 0)
     }
 
-    override fun getTokenExpiresIn(): Long {
+    private fun getTokenExpiresIn(): Long {
         return context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE)
             .getLong(accessTokenExpiresIn, 0)
+    }
+
+    override fun isTokenValid(): Boolean {
+        val accessToken = getToken()
+        val timeStamp = getTokenTimeStamp()
+        val expiresIn = getTokenExpiresIn()
+        return accessToken.isNotEmpty() && ((timeStamp + expiresIn) > System.currentTimeMillis())
     }
 
 }

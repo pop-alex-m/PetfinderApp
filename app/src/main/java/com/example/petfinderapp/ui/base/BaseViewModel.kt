@@ -10,9 +10,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 
-open class BaseViewModel : ViewModel(), KoinComponent {
+open class BaseViewModel : ViewModel() {
 
     val compositeDisposable = CompositeDisposable()
 

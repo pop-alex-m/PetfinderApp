@@ -1,6 +1,7 @@
 package com.example.petfinderapp
 
 import com.example.petfinderapp.data.repositories.AnimalsRepositoryImplementation
+import com.example.petfinderapp.data.repositories.AuthorizationRepositoryImplementation
 import com.example.petfinderapp.domain.models.AnimalDetails
 import com.example.petfinderapp.domain.models.AuthorizationException
 import com.example.petfinderapp.domain.models.GenericNetworkException
@@ -45,7 +46,9 @@ class MainViewModelUnitTest : KoinTest {
     val koinTestRule = KoinTestRule.create {
         modules(
             module {
-                viewModel { MainViewModel() }
+                single { Mockito.mock(AnimalsRepositoryImplementation::class.java) }
+                single { Mockito.mock(AuthorizationRepositoryImplementation::class.java) }
+                viewModel { MainViewModel(get(), get()) }
             }
         )
     }
@@ -90,9 +93,12 @@ class MainViewModelUnitTest : KoinTest {
         declareMock<AnimalsRepositoryImplementation> {
             given(getAnimals("dog", 1)).willReturn(Single.just(animalsResponse))
         }
+        declareMock<AuthorizationRepositoryImplementation> {
+            given(isAccessTokenValid()).willReturn(true)
+        }
 
         with(mainViewModel) {
-            onRetrieveListOfPets(SelectedPetType.DOG)
+            checkTokenAndGetListOfAnimals(SelectedPetType.DOG)
             assertEquals(animalsList.value.size, 2)
         }
 
@@ -111,6 +117,9 @@ class MainViewModelUnitTest : KoinTest {
         declareMock<AnimalsRepositoryImplementation> {
             given(getAnimals("dog", 1)).willReturn(Single.error(NoConnectivityException()))
         }
+        declareMock<AuthorizationRepositoryImplementation> {
+            given(isAccessTokenValid()).willReturn(true)
+        }
 
         var errorMessage = ""
         testScope.launch {
@@ -121,7 +130,7 @@ class MainViewModelUnitTest : KoinTest {
         }
 
         with(mainViewModel) {
-            onRetrieveListOfPets(SelectedPetType.DOG)
+            checkTokenAndGetListOfAnimals(SelectedPetType.DOG)
             assertEquals(0, animalsList.value.size)
         }
         assertEquals("Could not connect to the internet, please try again later", errorMessage)
@@ -132,6 +141,9 @@ class MainViewModelUnitTest : KoinTest {
         declareMock<AnimalsRepositoryImplementation> {
             given(getAnimals("dog", 1)).willReturn(Single.error(AuthorizationException()))
         }
+        declareMock<AuthorizationRepositoryImplementation> {
+            given(isAccessTokenValid()).willReturn(true)
+        }
 
         var errorMessage = ""
         testScope.launch {
@@ -142,7 +154,7 @@ class MainViewModelUnitTest : KoinTest {
         }
 
         with(mainViewModel) {
-            onRetrieveListOfPets(SelectedPetType.DOG)
+            checkTokenAndGetListOfAnimals(SelectedPetType.DOG)
             assertEquals(0, animalsList.value.size)
         }
         assertEquals(errorMessage, "Authentication failed")
@@ -153,6 +165,9 @@ class MainViewModelUnitTest : KoinTest {
         declareMock<AnimalsRepositoryImplementation> {
             given(getAnimals("dog", 1)).willReturn(Single.error(GenericNetworkException()))
         }
+        declareMock<AuthorizationRepositoryImplementation> {
+            given(isAccessTokenValid()).willReturn(true)
+        }
 
         var errorMessage = ""
         testScope.launch {
@@ -163,7 +178,7 @@ class MainViewModelUnitTest : KoinTest {
         }
 
         with(mainViewModel) {
-            onRetrieveListOfPets(SelectedPetType.DOG)
+            checkTokenAndGetListOfAnimals(SelectedPetType.DOG)
             assertEquals(0, animalsList.value.size)
         }
         assertEquals("Oops, something went wrong", errorMessage)
@@ -174,6 +189,9 @@ class MainViewModelUnitTest : KoinTest {
         declareMock<AnimalsRepositoryImplementation> {
             given(getAnimals("dog", 1)).willReturn(Single.error(InternalServerError()))
         }
+        declareMock<AuthorizationRepositoryImplementation> {
+            given(isAccessTokenValid()).willReturn(true)
+        }
 
         var errorMessage = ""
         testScope.launch {
@@ -184,7 +202,7 @@ class MainViewModelUnitTest : KoinTest {
         }
 
         with(mainViewModel) {
-            onRetrieveListOfPets(SelectedPetType.DOG)
+            checkTokenAndGetListOfAnimals(SelectedPetType.DOG)
             assertEquals(0, animalsList.value.size)
         }
 
