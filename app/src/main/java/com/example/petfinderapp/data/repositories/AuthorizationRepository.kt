@@ -1,6 +1,6 @@
 package com.example.petfinderapp.data.repositories
 
-import com.example.petfinderapp.data.TokenManagerImpl
+import com.example.petfinderapp.data.TokenManager
 import com.example.petfinderapp.data.models.AuthorizationResponse
 import com.example.petfinderapp.data.network.PetFinderApiService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -16,7 +16,7 @@ interface AuthorizationRepository {
 
 class AuthorizationRepositoryImplementation(
     private val apiService: PetFinderApiService,
-    private val tokenManager: TokenManagerImpl
+    private val tokenManager: TokenManager
 ) : AuthorizationRepository {
 
     companion object {

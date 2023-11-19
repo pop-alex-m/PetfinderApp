@@ -1,6 +1,8 @@
 package com.example.petfinderapp
 
+import com.example.petfinderapp.data.repositories.AnimalsRepository
 import com.example.petfinderapp.data.repositories.AnimalsRepositoryImplementation
+import com.example.petfinderapp.data.repositories.AuthorizationRepository
 import com.example.petfinderapp.data.repositories.AuthorizationRepositoryImplementation
 import com.example.petfinderapp.domain.models.AnimalDetails
 import com.example.petfinderapp.domain.models.AuthorizationException
@@ -46,8 +48,8 @@ class MainViewModelUnitTest : KoinTest {
     val koinTestRule = KoinTestRule.create {
         modules(
             module {
-                single { Mockito.mock(AnimalsRepositoryImplementation::class.java) }
-                single { Mockito.mock(AuthorizationRepositoryImplementation::class.java) }
+                single<AnimalsRepository> { Mockito.mock(AnimalsRepositoryImplementation::class.java) }
+                single<AuthorizationRepository> { Mockito.mock(AuthorizationRepositoryImplementation::class.java) }
                 viewModel { MainViewModel(get(), get()) }
             }
         )
@@ -90,10 +92,10 @@ class MainViewModelUnitTest : KoinTest {
             )
         )
 
-        declareMock<AnimalsRepositoryImplementation> {
+        declareMock<AnimalsRepository> {
             given(getAnimals("dog", 1)).willReturn(Single.just(animalsResponse))
         }
-        declareMock<AuthorizationRepositoryImplementation> {
+        declareMock<AuthorizationRepository> {
             given(isAccessTokenValid()).willReturn(true)
         }
 
@@ -114,10 +116,10 @@ class MainViewModelUnitTest : KoinTest {
 
     @Test
     fun testGetAnimalsResponse_error_no_connectivity() {
-        declareMock<AnimalsRepositoryImplementation> {
+        declareMock<AnimalsRepository> {
             given(getAnimals("dog", 1)).willReturn(Single.error(NoConnectivityException()))
         }
-        declareMock<AuthorizationRepositoryImplementation> {
+        declareMock<AuthorizationRepository> {
             given(isAccessTokenValid()).willReturn(true)
         }
 
@@ -138,10 +140,10 @@ class MainViewModelUnitTest : KoinTest {
 
     @Test
     fun testGetAnimalsResponse_error_authorization() {
-        declareMock<AnimalsRepositoryImplementation> {
+        declareMock<AnimalsRepository> {
             given(getAnimals("dog", 1)).willReturn(Single.error(AuthorizationException()))
         }
-        declareMock<AuthorizationRepositoryImplementation> {
+        declareMock<AuthorizationRepository> {
             given(isAccessTokenValid()).willReturn(true)
         }
 
@@ -162,10 +164,10 @@ class MainViewModelUnitTest : KoinTest {
 
     @Test
     fun testGetAnimalsResponse_error_generic_network_error() {
-        declareMock<AnimalsRepositoryImplementation> {
+        declareMock<AnimalsRepository> {
             given(getAnimals("dog", 1)).willReturn(Single.error(GenericNetworkException()))
         }
-        declareMock<AuthorizationRepositoryImplementation> {
+        declareMock<AuthorizationRepository> {
             given(isAccessTokenValid()).willReturn(true)
         }
 
@@ -186,10 +188,10 @@ class MainViewModelUnitTest : KoinTest {
 
     @Test
     fun testGetAnimalsResponse_error_internal_server_error() {
-        declareMock<AnimalsRepositoryImplementation> {
+        declareMock<AnimalsRepository> {
             given(getAnimals("dog", 1)).willReturn(Single.error(InternalServerError()))
         }
-        declareMock<AuthorizationRepositoryImplementation> {
+        declareMock<AuthorizationRepository> {
             given(isAccessTokenValid()).willReturn(true)
         }
 

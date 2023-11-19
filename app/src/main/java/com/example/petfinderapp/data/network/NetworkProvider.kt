@@ -1,6 +1,6 @@
 package com.example.petfinderapp.data.network
 
-import com.example.petfinderapp.data.TokenManagerImpl
+import com.example.petfinderapp.data.TokenManager
 import com.google.gson.GsonBuilder
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -17,7 +17,7 @@ interface NetworkProvider {
 
 }
 
-open class NetworkProviderImplementation(private val tokenManager: TokenManagerImpl) :
+class NetworkProviderImplementation(private val tokenManager: TokenManager) :
     NetworkProvider {
 
     companion object {

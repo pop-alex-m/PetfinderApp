@@ -1,15 +1,15 @@
 package com.example.petfinderapp.ui
 
-import com.example.petfinderapp.data.repositories.AnimalsRepositoryImplementation
-import com.example.petfinderapp.data.repositories.AuthorizationRepositoryImplementation
+import com.example.petfinderapp.data.repositories.AnimalsRepository
+import com.example.petfinderapp.data.repositories.AuthorizationRepository
 import com.example.petfinderapp.domain.models.AnimalDetails
 import com.example.petfinderapp.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class MainViewModel(
-    private val animalsRepository: AnimalsRepositoryImplementation,
-    private val authorizationRepository: AuthorizationRepositoryImplementation
+    private val animalsRepository: AnimalsRepository,
+    private val authorizationRepository: AuthorizationRepository
 ) : BaseViewModel() {
 
     companion object {
