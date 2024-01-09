@@ -1,5 +1,6 @@
 package com.example.petfinderapp.ui
 
+import androidx.paging.PagingData
 import com.example.petfinderapp.data.repositories.AnimalsRepository
 import com.example.petfinderapp.data.repositories.AuthorizationRepository
 import com.example.petfinderapp.domain.models.AnimalDetails
@@ -16,8 +17,8 @@ class MainViewModel(
         private const val TAG = "MainViewModel"
     }
 
-    private val _animalsList = MutableStateFlow(emptyList<AnimalDetails>())
-    val animalsList: StateFlow<List<AnimalDetails>> = _animalsList
+    private val _animalsList = MutableStateFlow(PagingData.empty<AnimalDetails>())
+    val animalsList: StateFlow<PagingData<AnimalDetails>> = _animalsList
 
     fun checkTokenAndGetListOfAnimals(petType: SelectedPetType = SelectedPetType.DOG) {
         if (!authorizationRepository.isAccessTokenValid()) {
@@ -33,7 +34,7 @@ class MainViewModel(
     }
 
     private fun onRetrieveListOfPets(petType: SelectedPetType) {
-        val disposable = animalsRepository.getAnimals(petType.name.lowercase(), 1)
+        val disposable = animalsRepository.getAnimalsByPage(petType)
             .subscribe({ animalDetailsList ->
                 _animalsList.value = animalDetailsList
             }, { exception ->
@@ -41,4 +42,14 @@ class MainViewModel(
             })
         compositeDisposable.add(disposable)
     }
+
+    /*private fun onRetrieveListOfPets(petType: SelectedPetType) {
+        val disposable = animalsRepository.getAnimals(petType.name.lowercase(), 1)
+            .subscribe({ animalDetailsList ->
+                _animalsList.value = animalDetailsList
+            }, { exception ->
+                onError(exception)
+            })
+        compositeDisposable.add(disposable)
+    }*/
 }

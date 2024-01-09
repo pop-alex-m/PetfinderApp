@@ -42,6 +42,7 @@ dependencies {
 
     val lifecycleVersion = "2.6.2"
     val koinVersion = "3.5.0"
+    val paginationVersion = "3.2.1"
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -69,6 +70,12 @@ dependencies {
     implementation("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    // Pagination library
+    implementation("androidx.paging:paging-runtime-ktx:$paginationVersion")
+    testImplementation("androidx.paging:paging-common-ktx:$paginationVersion")
+    // optional - RxJava support
+    implementation("androidx.paging:paging-rxjava3:$paginationVersion")
+
     // Koin
     implementation("io.insert-koin:koin-android:$koinVersion")
     // Koin testing tools

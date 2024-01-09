@@ -1,5 +1,10 @@
 package com.example.petfinderapp.data.repositories
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.rxjava3.observable
+import com.example.petfinderapp.data.AnimalsPagingSource
 import com.example.petfinderapp.data.models.Breed
 import com.example.petfinderapp.data.models.PetResponse
 import com.example.petfinderapp.data.network.PetFinderApiService
@@ -8,7 +13,9 @@ import com.example.petfinderapp.domain.models.AuthorizationException
 import com.example.petfinderapp.domain.models.GenericNetworkException
 import com.example.petfinderapp.domain.models.InternalServerError
 import com.example.petfinderapp.domain.models.NoConnectivityException
+import com.example.petfinderapp.ui.SelectedPetType
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import retrofit2.HttpException
@@ -16,7 +23,9 @@ import java.net.UnknownHostException
 
 interface AnimalsRepository {
 
-    fun getAnimals(type: String, page: Int): Single<List<AnimalDetails>>
+    //fun getAnimals(type: String, page: Int): Single<List<AnimalDetails>>
+
+    fun getAnimalsByPage(petType: SelectedPetType): Observable<PagingData<AnimalDetails>>
 }
 
 class AnimalsRepositoryImplementation(private val apiService: PetFinderApiService) :
@@ -29,41 +38,48 @@ class AnimalsRepositoryImplementation(private val apiService: PetFinderApiServic
         private const val BREED_SECONDARY = "Secondary breed : "
     }
 
-    override fun getAnimals(type: String, page: Int): Single<List<AnimalDetails>> {
-        return apiService.getListOfAnimals(type, page).flatMap { petResponse ->
-            val animalDetailsList = mapResponse(petResponse)
-            return@flatMap Single.just(animalDetailsList)
-        }.onErrorResumeNext {
-            return@onErrorResumeNext when (it) {
-                is UnknownHostException -> {
-                    // No connectivity error
-                    Single.error(NoConnectivityException())
-                }
+    /* override fun getAnimals(type: String, page: Int): Single<List<AnimalDetails>> {
+         return apiService.getListOfAnimals(type, page).flatMap { petResponse ->
+             val animalDetailsList = mapResponse(petResponse)
+             return@flatMap Single.just(animalDetailsList)
+         }.onErrorResumeNext {
+             return@onErrorResumeNext when (it) {
+                 is UnknownHostException -> {
+                     // No connectivity error
+                     Single.error(NoConnectivityException())
+                 }
 
-                is HttpException -> {
-                    when {
-                        it.code() == 401 -> {
-                            // Unauthorized
-                            Single.error(AuthorizationException())
-                        }
+                 is HttpException -> {
+                     when {
+                         it.code() == 401 -> {
+                             // Unauthorized
+                             Single.error(AuthorizationException())
+                         }
 
-                        it.code() == 500 || it.code() == 501 -> {
-                            // Internal server error
-                            Single.error(InternalServerError())
-                        }
+                         it.code() == 500 || it.code() == 501 -> {
+                             // Internal server error
+                             Single.error(InternalServerError())
+                         }
 
-                        else -> {
-                            // Other server error codes
-                            Single.error(GenericNetworkException())
-                        }
-                    }
-                }
+                         else -> {
+                             // Other server error codes
+                             Single.error(GenericNetworkException())
+                         }
+                     }
+                 }
 
-                else -> {
-                    Single.error(it)
-                }
-            }
-        }.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                 else -> {
+                     Single.error(it)
+                 }
+             }
+         }.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+     }*/
+
+    override fun getAnimalsByPage(petType: SelectedPetType): Observable<PagingData<AnimalDetails>> {
+        return Pager(
+            config = PagingConfig(pageSize = 20, maxSize = 200),
+            pagingSourceFactory = { AnimalsPagingSource(petFinderApiService = apiService, petType) }
+        ).observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
     }
 
     private fun mapResponse(petResponse: PetResponse): List<AnimalDetails> {

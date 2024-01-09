@@ -9,6 +9,7 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.paging.PagingData
 import com.example.petfinderapp.R
 import com.example.petfinderapp.databinding.FragmentAnimalsListBinding
 import com.example.petfinderapp.ui.base.sharedFlowCollect
@@ -22,7 +23,9 @@ class MainFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: MainViewModel by viewModel()
-    private val animalDetailsAdapter = AnimalsAdapter()
+
+    // private val animalDetailsAdapter = AnimalsAdapter()
+    private val animalDetailsAdapter = AnimalsPagingAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,7 +58,8 @@ class MainFragment : Fragment() {
                     val selectedPetType =
                         if (position == 0) SelectedPetType.DOG else SelectedPetType.CAT
 
-                    animalDetailsAdapter.clearAnimalsList()
+                    // animalDetailsAdapter.clearAnimalsList()
+                    animalDetailsAdapter.submitData(lifecycle, PagingData.empty())
                     loadingIndicator.isVisible = true
                     viewModel.checkTokenAndGetListOfAnimals(selectedPetType)
                 }
@@ -68,7 +72,8 @@ class MainFragment : Fragment() {
     private fun setupObservers() {
         stateFlowCollect(viewModel.animalsList) {
             binding.loadingIndicator.isVisible = false
-            animalDetailsAdapter.updateAnimalsList(it)
+            animalDetailsAdapter.submitData(lifecycle, it)
+            //animalDetailsAdapter.updateAnimalsList(it)
         }
 
         sharedFlowCollect(viewModel.errorMessage) { networkError ->
