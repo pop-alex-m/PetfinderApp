@@ -7,7 +7,7 @@ import com.example.petfinderapp.data.repositories.AuthorizationRepositoryImpleme
 import com.example.petfinderapp.domain.models.AnimalDetails
 import com.example.petfinderapp.domain.models.AuthorizationException
 import com.example.petfinderapp.domain.models.GenericNetworkException
-import com.example.petfinderapp.domain.models.InternalServerError
+import com.example.petfinderapp.domain.models.InternalServerErrorException
 import com.example.petfinderapp.domain.models.NoConnectivityException
 import com.example.petfinderapp.ui.MainViewModel
 import com.example.petfinderapp.ui.SelectedPetType
@@ -189,7 +189,7 @@ class MainViewModelUnitTest : KoinTest {
     @Test
     fun testGetAnimalsResponse_error_internal_server_error() {
         declareMock<AnimalsRepository> {
-            given(getAnimals("dog", 1)).willReturn(Single.error(InternalServerError()))
+            given(getAnimals("dog", 1)).willReturn(Single.error(InternalServerErrorException()))
         }
         declareMock<AuthorizationRepository> {
             given(isAccessTokenValid()).willReturn(true)

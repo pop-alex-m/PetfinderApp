@@ -47,5 +47,4 @@ class TokenManagerImpl(private val context: Context) : TokenManager {
         val expiresIn = getTokenExpiresIn()
         return accessToken.isNotEmpty() && ((timeStamp + expiresIn) > System.currentTimeMillis())
     }
-
 }

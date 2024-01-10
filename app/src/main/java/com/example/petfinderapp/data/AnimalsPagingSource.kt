@@ -4,9 +4,17 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.petfinderapp.data.models.Breed
 import com.example.petfinderapp.data.models.PetResponse
-import com.example.petfinderapp.data.network.PetFinderApiService
+import com.example.petfinderapp.data.network.NetworkUtils.Companion.safeApiCall
+import com.example.petfinderapp.data.network.ResultWrapper
+import com.example.petfinderapp.data.network.services.PetFinderApiService
 import com.example.petfinderapp.domain.models.AnimalDetails
+import com.example.petfinderapp.domain.models.ApiRateLimitExceededException
+import com.example.petfinderapp.domain.models.AuthorizationException
+import com.example.petfinderapp.domain.models.GenericNetworkException
+import com.example.petfinderapp.domain.models.InternalServerErrorException
+import com.example.petfinderapp.domain.models.NoConnectivityException
 import com.example.petfinderapp.ui.SelectedPetType
+import kotlinx.coroutines.Dispatchers
 import java.util.Locale
 
 class AnimalsPagingSource(
@@ -21,17 +29,28 @@ class AnimalsPagingSource(
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AnimalDetails> {
-        val position = params.key ?: 1
+        val page = params.key ?: 1
         return try {
-            val responseObservable = petFinderApiService.getListOfAnimals(
-                petType.name.lowercase(Locale.getDefault()),
-                position
-            ).blockingGet()
-            LoadResult.Page(
-                data = mapResponse(responseObservable),
-                prevKey = if (position == 1) null else (position - 1),
-                nextKey = (position + 1)
-            )
+            val petResponse = safeApiCall(Dispatchers.IO) {
+                petFinderApiService.getListOfAnimals(
+                    petType.name.lowercase(Locale.getDefault()), page, 20
+                )
+            }
+            when (petResponse) {
+                is ResultWrapper.Success -> {
+                    LoadResult.Page(
+                        data = mapResponse(petResponse.value),
+                        prevKey = if (page == 1) null else (page - 1),
+                        nextKey = (page + 1)
+                    )
+                }
+
+                is ResultWrapper.AuthorizationNotFoundError -> throw AuthorizationException()
+                is ResultWrapper.GenericError -> throw GenericNetworkException()
+                is ResultWrapper.InternalServerError -> throw InternalServerErrorException()
+                is ResultWrapper.NoConnectionError -> throw NoConnectivityException()
+                is ResultWrapper.RateLimitExceeded -> throw ApiRateLimitExceededException()
+            }
         } catch (e: Throwable) {
             LoadResult.Error(e)
         }

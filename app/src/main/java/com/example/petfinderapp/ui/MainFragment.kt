@@ -9,12 +9,15 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import com.example.petfinderapp.R
 import com.example.petfinderapp.databinding.FragmentAnimalsListBinding
 import com.example.petfinderapp.ui.base.sharedFlowCollect
 import com.example.petfinderapp.ui.base.showToast
-import com.example.petfinderapp.ui.base.stateFlowCollect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainFragment : Fragment() {
@@ -24,7 +27,6 @@ class MainFragment : Fragment() {
 
     private val viewModel: MainViewModel by viewModel()
 
-    // private val animalDetailsAdapter = AnimalsAdapter()
     private val animalDetailsAdapter = AnimalsPagingAdapter()
 
     override fun onCreateView(
@@ -49,6 +51,14 @@ class MainFragment : Fragment() {
         }
 
         with(binding) {
+            lifecycleScope.launch {
+                animalDetailsAdapter.loadStateFlow.collectLatest { loadState ->
+                    (loadState.refresh as? LoadState.Error)?.let { error ->
+                        viewModel.onError(error.error)
+                    }
+                }
+            }
+            
             recyclerViewAnimals.adapter = animalDetailsAdapter
             selectorAnimalType.adapter = animaTypesAdapter
             selectorAnimalType.onItemSelectedListener = object : OnItemSelectedListener {
@@ -58,10 +68,15 @@ class MainFragment : Fragment() {
                     val selectedPetType =
                         if (position == 0) SelectedPetType.DOG else SelectedPetType.CAT
 
-                    // animalDetailsAdapter.clearAnimalsList()
                     animalDetailsAdapter.submitData(lifecycle, PagingData.empty())
                     loadingIndicator.isVisible = true
-                    viewModel.checkTokenAndGetListOfAnimals(selectedPetType)
+
+                    lifecycleScope.launch {
+                        viewModel.getListOfAnimals(selectedPetType).collectLatest {
+                            binding.loadingIndicator.isVisible = false
+                            animalDetailsAdapter.submitData(lifecycle, it)
+                        }
+                    }
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) = Unit
@@ -70,12 +85,6 @@ class MainFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        stateFlowCollect(viewModel.animalsList) {
-            binding.loadingIndicator.isVisible = false
-            animalDetailsAdapter.submitData(lifecycle, it)
-            //animalDetailsAdapter.updateAnimalsList(it)
-        }
-
         sharedFlowCollect(viewModel.errorMessage) { networkError ->
             binding.loadingIndicator.isVisible = false
             showToast(networkError)

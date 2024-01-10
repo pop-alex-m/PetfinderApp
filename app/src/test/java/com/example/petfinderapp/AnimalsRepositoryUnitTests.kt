@@ -3,12 +3,12 @@ package com.example.petfinderapp
 import com.example.petfinderapp.data.models.Animal
 import com.example.petfinderapp.data.models.Breed
 import com.example.petfinderapp.data.models.PetResponse
-import com.example.petfinderapp.data.network.PetFinderApiService
+import com.example.petfinderapp.data.network.services.PetFinderApiService
 import com.example.petfinderapp.data.repositories.AnimalsRepositoryImplementation
 import com.example.petfinderapp.domain.models.AnimalDetails
 import com.example.petfinderapp.domain.models.AuthorizationException
 import com.example.petfinderapp.domain.models.GenericNetworkException
-import com.example.petfinderapp.domain.models.InternalServerError
+import com.example.petfinderapp.domain.models.InternalServerErrorException
 import com.example.petfinderapp.domain.models.NoConnectivityException
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.observers.TestObserver
@@ -112,7 +112,7 @@ class AnimalsRepositoryUnitTests : KoinTest {
         val testObserver = TestObserver<List<AnimalDetails>>()
         val result = animalsRepository.getAnimals("dog", 1)
         result.subscribe(testObserver)
-        testObserver.assertError(InternalServerError::class.java)
+        testObserver.assertError(InternalServerErrorException::class.java)
     }
 
     @Test

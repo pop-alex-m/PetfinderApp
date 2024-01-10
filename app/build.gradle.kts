@@ -62,9 +62,6 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.7.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
 
-    // Rx java
-    implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
-    implementation("io.reactivex.rxjava3:rxjava:3.1.5")
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
@@ -73,8 +70,6 @@ dependencies {
     // Pagination library
     implementation("androidx.paging:paging-runtime-ktx:$paginationVersion")
     testImplementation("androidx.paging:paging-common-ktx:$paginationVersion")
-    // optional - RxJava support
-    implementation("androidx.paging:paging-rxjava3:$paginationVersion")
 
     // Koin
     implementation("io.insert-koin:koin-android:$koinVersion")
