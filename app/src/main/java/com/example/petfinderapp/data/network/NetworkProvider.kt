@@ -1,7 +1,10 @@
 package com.example.petfinderapp.data.network
 
 import com.example.petfinderapp.data.TokenManager
+import com.example.petfinderapp.data.models.AuthorizationResponse
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.runBlocking
+import okhttp3.Authenticator
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -17,11 +20,18 @@ interface NetworkProvider {
 
 }
 
-class NetworkProviderImplementation(private val tokenManager: TokenManager) :
+class NetworkProviderImplementation(
+    private val tokenManager: TokenManager,
+    private val authorizationProvider: AuthorizationProvider
+) :
     NetworkProvider {
 
     companion object {
         private const val BASE_URL = "https://api.petfinder.com"
+        private const val tokenBearer = "Bearer"
+        const val grantType = "client_credentials"
+        const val clientId = "D5foHuINtQ6yRvPiupTvSuPqvcFuXEEBYENo3yhHeVwyyY9tc4"
+        const val clientSecret = "oiGMBsDZNDOLnCpFqCunQYwZ8xKqCgxzfB1mQryF"
     }
 
     override fun getRetrofit(): Retrofit {
@@ -44,6 +54,7 @@ class NetworkProviderImplementation(private val tokenManager: TokenManager) :
         with(builder) {
             addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             addNetworkInterceptor(buildDefaultHeaderInterceptor())
+            authenticator(buildTokenRefreshInterceptor())
         }
     }
 
@@ -68,7 +79,29 @@ class NetworkProviderImplementation(private val tokenManager: TokenManager) :
 
     private fun buildAuthorisationHeaders(original: Request): Request {
         return original.newBuilder().apply {
-            addHeader("Authorization", "Bearer ${tokenManager.getToken()}")
+            addHeader("Authorization", "$tokenBearer ${tokenManager.getToken()}")
         }.build()
+    }
+
+    private fun buildTokenRefreshInterceptor(): Authenticator {
+        return Authenticator { route, response ->
+            val authorizationResponse = getUpdatedToken()
+            if (authorizationResponse.accessToken != null && authorizationResponse.expiresIn != null) {
+                tokenManager.saveToken(
+                    authorizationResponse.accessToken,
+                    authorizationResponse.expiresIn
+                )
+                response.request.newBuilder()
+                    .header("Authorization", "$tokenBearer ${tokenManager.getToken()} ")
+                    .build()
+            } else null
+        }
+    }
+
+    private fun getUpdatedToken(): AuthorizationResponse {
+        return runBlocking {
+            authorizationProvider.getAuthorizationService()
+                .authorize(grantType, clientId, clientSecret)
+        }
     }
 }
