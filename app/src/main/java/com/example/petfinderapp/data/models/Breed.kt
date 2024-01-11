@@ -6,12 +6,3 @@ data class Breed (
     val mixed : Boolean? = null,
     val unknown : Boolean? = null
 )
-
-
-  /*  "breeds": {
-        "primary": "Black Mouth Cur",
-        "secondary": null,
-        "mixed": false,
-        "unknown": false
-    },*/
-

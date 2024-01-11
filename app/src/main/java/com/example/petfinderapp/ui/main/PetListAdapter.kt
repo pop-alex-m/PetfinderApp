@@ -1,4 +1,4 @@
-package com.example.petfinderapp.ui
+package com.example.petfinderapp.ui.main
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,11 +6,12 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.petfinderapp.R
-import com.example.petfinderapp.databinding.AnimalDetailsItemBinding
+import com.example.petfinderapp.databinding.PetListItemBinding
 import com.example.petfinderapp.domain.models.AnimalDetails
+import com.squareup.picasso.Picasso
 
-class AnimalsPagingAdapter :
-    PagingDataAdapter<AnimalDetails, AnimalsPagingAdapter.AnimalViewHolder>(AnimalDiffCallback()) {
+class PetListAdapter :
+    PagingDataAdapter<AnimalDetails, PetListAdapter.AnimalViewHolder>(AnimalDiffCallback()) {
 
     override fun onBindViewHolder(holder: AnimalViewHolder, position: Int) {
         val item = getItem(position)
@@ -19,11 +20,11 @@ class AnimalsPagingAdapter :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimalViewHolder {
         val binding =
-            AnimalDetailsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            PetListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return AnimalViewHolder(binding)
     }
 
-    inner class AnimalViewHolder(private val binding: AnimalDetailsItemBinding) :
+    inner class AnimalViewHolder(private val binding: PetListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(animalDetails: AnimalDetails?) {
@@ -32,11 +33,10 @@ class AnimalsPagingAdapter :
                 animalDetails?.let { animalDetails ->
                     nameTextView.text = context.getString(R.string.name, animalDetails.name)
                     genderTextView.text = context.getString(R.string.gender, animalDetails.gender)
-                    sizeTextView.text = context.getString(R.string.size, animalDetails.size)
-                    breedTextView.text = context.getString(R.string.breed, animalDetails.breed)
-                    statusTextView.text = context.getString(R.string.status, animalDetails.status)
-                    distanceTextView.text =
-                        context.getString(R.string.distance, animalDetails.distance)
+                    animalDetails.photoUrl?.let {
+                        Picasso.get().load(it).placeholder(R.drawable.image_not_available_icon)
+                            .into(petPhotoImgView)
+                    }
                 }
             }
         }
@@ -51,6 +51,4 @@ class AnimalsPagingAdapter :
             return oldItem == newItem
         }
     }
-
-
 }

@@ -70,7 +70,10 @@ dependencies {
     // Pagination library
     implementation("androidx.paging:paging-runtime-ktx:$paginationVersion")
     testImplementation("androidx.paging:paging-common-ktx:$paginationVersion")
-
+    // Encrypted shared preferences
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    //Picasso image loading
+    implementation("com.squareup.picasso:picasso:2.8")
     // Koin
     implementation("io.insert-koin:koin-android:$koinVersion")
     // Koin testing tools

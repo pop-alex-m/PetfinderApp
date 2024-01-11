@@ -2,6 +2,7 @@ package com.example.petfinderapp.data
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.example.petfinderapp.data.models.Animal
 import com.example.petfinderapp.data.models.Breed
 import com.example.petfinderapp.data.models.PetResponse
 import com.example.petfinderapp.data.network.NetworkUtils.Companion.safeApiCall
@@ -26,6 +27,7 @@ class AnimalsPagingSource(
         private const val UNKNOWN_BREED = "Unknown"
         private const val BREED_PRIMARY = "Primary breed : "
         private const val BREED_SECONDARY = "Secondary breed : "
+        private const val apiPageLimit = 20
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AnimalDetails> {
@@ -33,7 +35,7 @@ class AnimalsPagingSource(
         return try {
             val petResponse = safeApiCall(Dispatchers.IO) {
                 petFinderApiService.getListOfAnimals(
-                    petType.name.lowercase(Locale.getDefault()), page, 20
+                    petType.name.lowercase(Locale.getDefault()), page, apiPageLimit
                 )
             }
             when (petResponse) {
@@ -64,7 +66,8 @@ class AnimalsPagingSource(
                 size = it.size,
                 breed = getBreedAsText(it.breed),
                 status = it.status,
-                distance = it.distance
+                distance = it.distance,
+                photoUrl = getMediumPhotoUrl(it)
             )
         }
     }
@@ -85,6 +88,13 @@ class AnimalsPagingSource(
                 }
             }
         } ?: UNKNOWN_BREED
+    }
+
+    private fun getMediumPhotoUrl(animal: Animal): String? {
+        val photos = animal.photos
+        return if (!photos.isNullOrEmpty()) {
+            photos[0].small
+        } else null
     }
 
     override fun getRefreshKey(state: PagingState<Int, AnimalDetails>): Int? {

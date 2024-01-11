@@ -23,8 +23,7 @@ interface NetworkProvider {
 class NetworkProviderImplementation(
     private val tokenManager: TokenManager,
     private val authorizationProvider: AuthorizationProvider
-) :
-    NetworkProvider {
+) : NetworkProvider {
 
     companion object {
         private const val BASE_URL = "https://api.petfinder.com"

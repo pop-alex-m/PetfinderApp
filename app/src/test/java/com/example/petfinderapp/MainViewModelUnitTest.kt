@@ -9,8 +9,8 @@ import com.example.petfinderapp.domain.models.AuthorizationException
 import com.example.petfinderapp.domain.models.GenericNetworkException
 import com.example.petfinderapp.domain.models.InternalServerErrorException
 import com.example.petfinderapp.domain.models.NoConnectivityException
-import com.example.petfinderapp.ui.MainViewModel
 import com.example.petfinderapp.ui.SelectedPetType
+import com.example.petfinderapp.ui.main.PetListViewModel
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -34,7 +34,7 @@ import kotlin.test.assertEquals
 
 class MainViewModelUnitTest : KoinTest {
 
-    private val mainViewModel by inject<MainViewModel>()
+    private val mainViewModel by inject<PetListViewModel>()
 
     @get:Rule
     val mockProvider = MockProviderRule.create { clazz ->
@@ -50,7 +50,7 @@ class MainViewModelUnitTest : KoinTest {
             module {
                 single<AnimalsRepository> { Mockito.mock(AnimalsRepositoryImplementation::class.java) }
                 single<AuthorizationRepository> { Mockito.mock(AuthorizationRepositoryImplementation::class.java) }
-                viewModel { MainViewModel(get(), get()) }
+                viewModel { PetListViewModel(get(), get()) }
             }
         )
     }

@@ -1,4 +1,4 @@
-package com.example.petfinderapp.ui
+package com.example.petfinderapp.ui.main
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,20 +14,21 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import com.example.petfinderapp.R
 import com.example.petfinderapp.databinding.FragmentAnimalsListBinding
+import com.example.petfinderapp.ui.SelectedPetType
 import com.example.petfinderapp.ui.base.sharedFlowCollect
 import com.example.petfinderapp.ui.base.showToast
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainFragment : Fragment() {
+class PetListFragment : Fragment() {
 
     private var _binding: FragmentAnimalsListBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: MainViewModel by viewModel()
+    private val viewModel: PetListViewModel by viewModel()
 
-    private val animalDetailsAdapter = AnimalsPagingAdapter()
+    private val animalDetailsAdapter = PetListAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,32 +52,18 @@ class MainFragment : Fragment() {
         }
 
         with(binding) {
-            lifecycleScope.launch {
-                animalDetailsAdapter.loadStateFlow.collectLatest { loadState ->
-                    (loadState.refresh as? LoadState.Error)?.let { error ->
-                        viewModel.onError(error.error)
-                    }
-                }
-            }
-            
             recyclerViewAnimals.adapter = animalDetailsAdapter
             selectorAnimalType.adapter = animaTypesAdapter
             selectorAnimalType.onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
-                    val selectedPetType =
-                        if (position == 0) SelectedPetType.DOG else SelectedPetType.CAT
-
                     animalDetailsAdapter.submitData(lifecycle, PagingData.empty())
                     loadingIndicator.isVisible = true
 
-                    lifecycleScope.launch {
-                        viewModel.getListOfAnimals(selectedPetType).collectLatest {
-                            binding.loadingIndicator.isVisible = false
-                            animalDetailsAdapter.submitData(lifecycle, it)
-                        }
-                    }
+                    val selectedPetType =
+                        if (position == 0) SelectedPetType.DOG else SelectedPetType.CAT
+                    onLoadPetList(selectedPetType)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) = Unit
@@ -88,6 +75,22 @@ class MainFragment : Fragment() {
         sharedFlowCollect(viewModel.errorMessage) { networkError ->
             binding.loadingIndicator.isVisible = false
             showToast(networkError)
+        }
+        lifecycleScope.launch {
+            animalDetailsAdapter.loadStateFlow.collectLatest { loadState ->
+                (loadState.refresh as? LoadState.Error)?.let { error ->
+                    viewModel.onError(error.error)
+                }
+            }
+        }
+    }
+
+    private fun onLoadPetList(selectedPetType: SelectedPetType) {
+        lifecycleScope.launch {
+            viewModel.getListOfAnimals(selectedPetType).collectLatest {
+                binding.loadingIndicator.isVisible = false
+                animalDetailsAdapter.submitData(lifecycle, it)
+            }
         }
     }
 

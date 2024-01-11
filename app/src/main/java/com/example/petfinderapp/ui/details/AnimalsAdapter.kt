@@ -1,4 +1,4 @@
-package com.example.petfinderapp.ui
+package com.example.petfinderapp.ui.details
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
