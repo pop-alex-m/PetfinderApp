@@ -1,4 +1,4 @@
-package com.example.petfinderapp.ui.main
+package com.example.petfinderapp.ui.petsList
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,43 +8,43 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import com.example.petfinderapp.R
-import com.example.petfinderapp.databinding.FragmentAnimalsListBinding
-import com.example.petfinderapp.ui.SelectedPetType
+import com.example.petfinderapp.databinding.FragmentPetListBinding
+import com.example.petfinderapp.domain.models.SelectedPetType
+import com.example.petfinderapp.ui.base.BaseFragment
 import com.example.petfinderapp.ui.base.sharedFlowCollect
 import com.example.petfinderapp.ui.base.showToast
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class PetListFragment : Fragment() {
+class PetListFragment : BaseFragment() {
 
-    private var _binding: FragmentAnimalsListBinding? = null
+    private var _binding: FragmentPetListBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: PetListViewModel by viewModel()
 
-    private val animalDetailsAdapter = PetListAdapter()
+    private val animalDetailsAdapter = PetListAdapter { selectedAnimalDetails ->
+        navigateToDirection(
+            PetListFragmentDirections.actionPetListToDetailsScreen(
+                selectedAnimalDetails
+            )
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAnimalsListBinding.inflate(inflater, container, false)
+        _binding = FragmentPetListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setupViews()
-        setupObservers()
-    }
-
-    private fun setupViews() {
+    override fun setupViews() {
         val animaTypesAdapter = ArrayAdapter.createFromResource(
             requireContext(), R.array.pet_types, android.R.layout.simple_spinner_item
         ).also { adapter ->
@@ -71,7 +71,7 @@ class PetListFragment : Fragment() {
         }
     }
 
-    private fun setupObservers() {
+    override fun setupObservers() {
         sharedFlowCollect(viewModel.errorMessage) { networkError ->
             binding.loadingIndicator.isVisible = false
             showToast(networkError)

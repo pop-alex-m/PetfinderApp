@@ -8,20 +8,20 @@ import com.example.petfinderapp.data.models.PetResponse
 import com.example.petfinderapp.data.network.NetworkUtils.Companion.safeApiCall
 import com.example.petfinderapp.data.network.ResultWrapper
 import com.example.petfinderapp.data.network.services.PetFinderApiService
-import com.example.petfinderapp.domain.models.AnimalDetails
 import com.example.petfinderapp.domain.models.ApiRateLimitExceededException
 import com.example.petfinderapp.domain.models.AuthorizationException
 import com.example.petfinderapp.domain.models.GenericNetworkException
 import com.example.petfinderapp.domain.models.InternalServerErrorException
 import com.example.petfinderapp.domain.models.NoConnectivityException
-import com.example.petfinderapp.ui.SelectedPetType
+import com.example.petfinderapp.domain.models.PetDetails
+import com.example.petfinderapp.domain.models.SelectedPetType
 import kotlinx.coroutines.Dispatchers
 import java.util.Locale
 
 class AnimalsPagingSource(
     private val petFinderApiService: PetFinderApiService,
     private val petType: SelectedPetType
-) : PagingSource<Int, AnimalDetails>() {
+) : PagingSource<Int, PetDetails>() {
 
     companion object {
         private const val UNKNOWN_BREED = "Unknown"
@@ -30,7 +30,7 @@ class AnimalsPagingSource(
         private const val apiPageLimit = 20
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AnimalDetails> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PetDetails> {
         val page = params.key ?: 1
         return try {
             val petResponse = safeApiCall(Dispatchers.IO) {
@@ -58,16 +58,18 @@ class AnimalsPagingSource(
         }
     }
 
-    private fun mapResponse(petResponse: PetResponse): List<AnimalDetails> {
+    private fun mapResponse(petResponse: PetResponse): List<PetDetails> {
         return petResponse.animals.map {
-            AnimalDetails(
+            PetDetails(
+                id = it.id,
                 name = it.name,
                 gender = it.gender,
                 size = it.size,
                 breed = getBreedAsText(it.breed),
                 status = it.status,
                 distance = it.distance,
-                photoUrl = getMediumPhotoUrl(it)
+                smallPhotoUrl = getPhotoUrl(it, 0),
+                largePhotoUrl = getPhotoUrl(it, 1)
             )
         }
     }
@@ -90,14 +92,14 @@ class AnimalsPagingSource(
         } ?: UNKNOWN_BREED
     }
 
-    private fun getMediumPhotoUrl(animal: Animal): String? {
+    private fun getPhotoUrl(animal: Animal, size: Int = 0): String? {
         val photos = animal.photos
         return if (!photos.isNullOrEmpty()) {
-            photos[0].small
+            if (size == 0) photos[0].small else photos[0].large
         } else null
     }
 
-    override fun getRefreshKey(state: PagingState<Int, AnimalDetails>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, PetDetails>): Int? {
         return state.anchorPosition?.let {
             state.closestPageToPosition(it)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(it)?.nextKey?.minus(1)

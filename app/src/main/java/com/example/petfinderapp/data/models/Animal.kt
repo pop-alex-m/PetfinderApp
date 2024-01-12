@@ -1,6 +1,7 @@
 package com.example.petfinderapp.data.models
 
 data class Animal (
+    val id: Int? = null,
     val name: String? = null,
     val gender: String? = null,
     val size: String? = null,

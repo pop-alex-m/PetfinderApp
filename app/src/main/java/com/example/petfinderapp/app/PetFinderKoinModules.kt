@@ -9,7 +9,8 @@ import com.example.petfinderapp.data.network.NetworkProviderImplementation
 import com.example.petfinderapp.data.network.services.PetFinderApiService
 import com.example.petfinderapp.data.repositories.AnimalsRepository
 import com.example.petfinderapp.data.repositories.AnimalsRepositoryImplementation
-import com.example.petfinderapp.ui.main.PetListViewModel
+import com.example.petfinderapp.ui.details.PetDetailsViewModel
+import com.example.petfinderapp.ui.petsList.PetListViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -32,6 +33,8 @@ val NetworkModule = module {
 val ViewModelModule = module {
 
     viewModel { PetListViewModel(get()) }
+
+    viewModel { PetDetailsViewModel() }
 }
 
 val RepositoryModule = module {

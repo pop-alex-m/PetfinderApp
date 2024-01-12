@@ -3,13 +3,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/petListFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.example.petfinderapp.ui.main.PetListFragment"
-        android:label="@string/fragment_animals_list_label"
-        tools:layout="@layout/fragment_animals_list">
+        android:id="@+id/petListFragment"
+        android:name="com.example.petfinderapp.ui.petsList.PetListFragment"
+        android:label="PetListFragment"
+        tools:layout="@layout/fragment_pet_list">
+
+        <action
+            android:id="@+id/action_pet_list_to_details_screen"
+            app:destination="@id/petDetailsFragment" />
 
     </fragment>
+
+    <fragment
+        android:id="@+id/petDetailsFragment"
+        android:name="com.example.petfinderapp.ui.details.PetDetailsFragment"
+        android:label="PetDetailsFragment"
+        tools:layout="@layout/fragment_pet_details">
+
+        <argument
+            android:name="selectedPet"
+            app:argType="com.example.petfinderapp.domain.models.PetDetails" />
+
+    </fragment>
+
 </navigation>

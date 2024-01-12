@@ -9,8 +9,8 @@ import com.example.petfinderapp.domain.models.AuthorizationException
 import com.example.petfinderapp.domain.models.GenericNetworkException
 import com.example.petfinderapp.domain.models.InternalServerErrorException
 import com.example.petfinderapp.domain.models.NoConnectivityException
-import com.example.petfinderapp.ui.SelectedPetType
-import com.example.petfinderapp.ui.main.PetListViewModel
+import com.example.petfinderapp.domain.models.SelectedPetType
+import com.example.petfinderapp.ui.petsList.PetListViewModel
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
